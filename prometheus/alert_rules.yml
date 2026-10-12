@@ -1,0 +1,59 @@
+groups:
+  - name: resource_alerts
+    interval: 30s
+    rules:
+      # CPU usage > 80% for 3 minutes
+      - alert: HighCpuUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for more than 3 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+
+      # Memory usage > 80% for 3 minutes
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 80% for more than 3 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+
+      # Disk usage > 80% for 3 minutes
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) * 100 > 80
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+          description: "Disk usage is above 80% for more than 3 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+
+  # node up/down monitoring 
+  - name: node_status
+    interval: 1m                 # ← check every 1 minute (as you asked)
+    rules:
+      # Node is DOWN — fires 1 minute after node_exporter stops responding
+      - alert: NodeDown
+        expr: up{job="nodes"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🔴 Node DOWN: {{ $labels.instance }}"
+          description: "Node {{ $labels.instance }} (datacenter: {{ $labels.datacenter }}, env: {{ $labels.env }}) has been unreachable for more than 1 minute."
+
+      # Node is UP — for a daily "everything is fine" heartbeat, we
+      # keep the alert silent on the happy path, so it doesn't spam.
+      # To get a periodic "all good" email instead, see the Note below.
+      - alert: NodeUnreachableShort
+        expr: up{job="nodes"} == 0
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "⚠️ Node unresponsive (30s): {{ $labels.instance }}"
+          description: "Node {{ $labels.instance }} has been unresponsive for 30 seconds."

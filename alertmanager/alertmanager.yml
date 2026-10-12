@@ -1,0 +1,16 @@
+global:
+  resolve_timeout: 5m
+  # No more smtp_* settings here
+
+route:
+  group_by: ['alertname', 'instance']
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 4h
+  receiver: 'gchat'
+
+receivers:
+- name: 'gchat'
+  webhook_configs:
+  - url: 'http://calert:6000/dispatch' 
+    send_resolved: true

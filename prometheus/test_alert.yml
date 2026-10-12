@@ -1,0 +1,11 @@
+groups:
+  - name: test
+    rules:
+      - alert: TestAlertFiring
+        expr: vector(1)
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🧪 Test alert — please ignore"
+          description: "Synthetic test to verify Alertmanager + notification delivery."
