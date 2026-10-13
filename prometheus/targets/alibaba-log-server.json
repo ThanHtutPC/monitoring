@@ -1,0 +1,12 @@
+[
+  {
+    "targets": [
+      "8.219.232.223:9100"
+    ],
+    "labels": {
+      "env": "log-server",
+      "cloud": "alibaba",
+      "nodename": "log-server-db"
+    }
+  }
+]

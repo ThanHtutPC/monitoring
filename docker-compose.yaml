@@ -12,7 +12,6 @@ services:
       - ./prometheus/targets:/etc/prometheus/targets:ro
       # alert_rules for when over 80%
       - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
-      - ./prometheus/test_alert.yml:/etc/prometheus/test_alert.yml:ro
       # config persistent data
       - prometheus_data:/prometheus
     command:
@@ -27,7 +26,7 @@ services:
     container_name: grafana
     restart: unless-stopped
     ports:
-      - "9001:3000"
+      - "9005:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: iadmin

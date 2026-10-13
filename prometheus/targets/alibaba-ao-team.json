@@ -1,0 +1,12 @@
+[
+  {
+    "targets": 
+      "8.219.232.220:9100",
+    ,
+    "labels": {
+      "env": "ao-team",
+      "cloud": "alibaba",
+      "nodename": "teleport-db"
+    }
+  }
+]
