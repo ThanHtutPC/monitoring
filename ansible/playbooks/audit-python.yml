@@ -1,0 +1,27 @@
+---
+- name: Audit Python versions on all nodes
+  hosts: elearningdemo
+  gather_facts: no
+  become: no
+
+  tasks:
+    - name: Get Python version
+      raw: |
+        if command -v python3 >/dev/null 2>&1; then
+          python3 --version 2>&1
+        elif command -v python >/dev/null 2>&1; then
+          python --version 2>&1
+        else
+          echo "no python"
+        fi
+      register: pyver
+      changed_when: false
+
+    - name: Get OS version
+      raw: cat /etc/os-release | grep PRETTY_NAME
+      register: osver
+      changed_when: false
+
+    - name: Show
+      debug:
+        msg: "{{ inventory_hostname }} | {{ pyver.stdout }} | {{ osver.stdout }}"

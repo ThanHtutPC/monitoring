@@ -1,0 +1,28 @@
+---
+- name: Ping all nodes
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Ping via Ansible (requires Python 3.8+ on target)
+      ping:
+      register: ping_result
+      ignore_errors: yes
+
+    - name: Fallback — raw connectivity check
+      raw: echo "alive"
+      register: raw_result
+      when: ping_result is failed
+      changed_when: false
+
+    - name: Report status
+      debug:
+        msg: >-
+          {{ inventory_hostname }}:
+          {% if ping_result is succeeded %}
+          OK (Python {{ ansible_python_version | default('?') }})
+          {% elif raw_result is defined and raw_result.stdout is defined %}
+          REACHABLE (raw only — old Python)
+          {% else %}
+          UNREACHABLE
+          {% endif %}

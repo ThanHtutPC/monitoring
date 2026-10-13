@@ -1,0 +1,47 @@
+2026-10-13 16:32:21,684 p=5235 u=root n=ansible ERROR| [ERROR]: Task failed: Failed to connect to the host via ssh: Can't open user config file /home/ubuntu/teleport-monitoring/teleport_ssh_config: No such file or directory
+
+Task failed.
+Origin: <adhoc 'ping' task>
+
+{'action': 'ping', 'args': {}, 'timeout': 0, 'async_val': 0, 'poll': 15}
+
+<<< caused by >>>
+
+Failed to connect to the host via ssh: Can't open user config file /home/ubuntu/teleport-monitoring/teleport_ssh_config: No such file or directory
+
+
+2026-10-13 16:32:21,684 p=5235 u=root n=ansible INFO| localhost | UNREACHABLE! => {
+    "changed": false,
+    "msg": "Task failed: Failed to connect to the host via ssh: Can't open user config file /home/ubuntu/teleport-monitoring/teleport_ssh_config: No such file or directory",
+    "unreachable": true
+}
+2026-10-13 16:34:57,837 p=5643 u=root n=ansible WARNING| [WARNING]: Host 'localhost' is using the discovered Python interpreter at '/usr/bin/python3.14', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-10-13 16:34:57,838 p=5643 u=root n=ansible INFO| localhost | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.14"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+2026-10-13 16:36:25,661 p=6025 u=root n=ansible INFO| PLAY [Install and configure Node Exporter on client hosts] *************************************************************************************
+2026-10-13 16:36:25,670 p=6025 u=root n=ansible INFO| TASK [Gathering Facts] *************************************************************************************************************************
+2026-10-13 16:36:29,378 p=6025 u=root n=ansible WARNING| [WARNING]: Host 'localhost' is using the discovered Python interpreter at '/usr/bin/python3.14', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.
+
+2026-10-13 16:36:29,378 p=6025 u=root n=ansible INFO| ok: [localhost]
+2026-10-13 16:36:29,382 p=6025 u=root n=ansible INFO| TASK [node-exporter : Create node_exporter user] ***********************************************************************************************
+2026-10-13 16:36:29,872 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:29,877 p=6025 u=root n=ansible INFO| TASK [node-exporter : Download Node Exporter] **************************************************************************************************
+2026-10-13 16:36:34,996 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:35,002 p=6025 u=root n=ansible INFO| TASK [node-exporter : Extract Node Exporter] ***************************************************************************************************
+2026-10-13 16:36:36,238 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:36,243 p=6025 u=root n=ansible INFO| TASK [node-exporter : Install Node Exporter binary] ********************************************************************************************
+2026-10-13 16:36:36,703 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:36,710 p=6025 u=root n=ansible INFO| TASK [node-exporter : Create Node Exporter systemd service] ************************************************************************************
+2026-10-13 16:36:37,260 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:37,264 p=6025 u=root n=ansible INFO| TASK [node-exporter : Enable and start Node Exporter] ******************************************************************************************
+2026-10-13 16:36:38,389 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:38,403 p=6025 u=root n=ansible INFO| RUNNING HANDLER [node-exporter : Restart node_exporter] ****************************************************************************************
+2026-10-13 16:36:39,080 p=6025 u=root n=ansible INFO| changed: [localhost]
+2026-10-13 16:36:39,081 p=6025 u=root n=ansible INFO| PLAY RECAP *************************************************************************************************************************************
+2026-10-13 16:36:39,082 p=6025 u=root n=ansible INFO| localhost                  : ok=8    changed=7    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   

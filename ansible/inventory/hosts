@@ -1,0 +1,4 @@
+#tsh ls --format=json | jq -r '.[].spec.hostname' > hosts
+
+[local]
+localhost ansible_connection=local ansible_host=127.0.0.1 ansible_user=root
