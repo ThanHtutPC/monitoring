@@ -1,6 +1,16 @@
 global:
   scrape_interval: 15s
-  evaluation_interval: 15s
+
+scrape_configs:
+  # Scrape the NX Health Checker app
+  - job_name: "health_check"
+    static_configs:
+      - targets: ["nx-health-checker:3030"]
+
+  - job_name: 'nodes'
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/*.json']
+        refresh_interval: 30s
 
 rule_files:
   - /etc/prometheus/alert_rules.yml
@@ -10,14 +20,3 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets: ['alertmanager:9093']
-
-scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-
-  - job_name: 'nodes'
-    file_sd_configs:
-      - files: ['/etc/prometheus/targets/*.json']
-        refresh_interval: 30s
-

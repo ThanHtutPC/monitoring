@@ -4,37 +4,40 @@ groups:
     rules:
       # CPU usage > 80% for 3 minutes
       - alert: HighCpuUsage
-        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        expr: 100 - (avg by (instance, nodename, env, cloud) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        keep_firing_for: 30m
         for: 3m
         labels:
           severity: warning
         annotations:
-          summary: "High CPU usage on {{ $labels.nodename }} (env: {{ $labels.env }}, cloud: {{ $labels.cloud }})"
-          description: "CPU usage on {{ $labels.nodename }} (instance: {{ $labels.instance }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) is above 80% for more than 3 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+          summary: '🚨 High CPU usage on {{ $labels.nodename }} (env: {{ $labels.env }}, cloud: {{ $labels.cloud }})'
+          description: 'CPU usage on {{ $labels.nodename }} (instance: {{ $labels.instance }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) is above 80% for more than 3 minutes (current: {{ $value | printf "%.1f" }}%).'
 
-      # Memory usage > 80% for 3 minutes
+      # Memory usage > 95% for 3 minutes
       - alert: HighMemoryUsage
-        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        keep_firing_for: 30m
         for: 3m
         labels:
           severity: warning
         annotations:
-          summary: "High memory usage on {{ $labels.nodename }} (env: {{ $labels.env }}, cloud: {{ $labels.cloud }})"
-          description: "Memory usage on {{ $labels.nodename }} (instance: {{ $labels.instance }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) is above 80% for more than 3 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+          summary: '🚨 High memory usage on {{ $labels.nodename }} (env: {{ $labels.env }}, cloud: {{ $labels.cloud }})'
+          description: 'Memory usage on {{ $labels.nodename }} (instance: {{ $labels.instance }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) is above 95% for more than 3 minutes (current: {{ $value | printf "%.1f" }}%).'
 
-      # Disk usage > 80% for 3 minutes
+      # Disk usage > 90% for 3 minutes
       - alert: HighDiskUsage
-        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) * 100 > 80
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) * 100 > 90
+        keep_firing_for: 30m
         for: 3m
         labels:
           severity: warning
         annotations:
-          summary: "High disk usage on {{ $labels.nodename }} (env: {{ $labels.env }}, cloud: {{ $labels.cloud }})"
-          description: "Disk usage on {{ $labels.nodename }} (instance: {{ $labels.instance }}, mountpoint: {{ $labels.mountpoint }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) is above 80% for more than 3 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+          summary: '🚨 High disk usage on {{ $labels.nodename }} (env: {{ $labels.env }}, cloud: {{ $labels.cloud }})'
+          description: 'Disk usage on {{ $labels.nodename }} (instance: {{ $labels.instance }}, mountpoint: {{ $labels.mountpoint }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) is above 90% for more than 3 minutes (current: {{ $value | printf "%.1f" }}%).'
 
   # node up/down monitoring
   - name: node_status
-    interval: 1m
+    interval: 30s
     rules:
       - alert: NodeDown
         expr: up{job="nodes"} == 0
@@ -42,8 +45,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "🔴 Node DOWN: {{ $labels.nodename }}"
-          description: "Node {{ $labels.nodename }} (instance: {{ $labels.instance }}, datacenter: {{ $labels.datacenter }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) has been unreachable for more than 1 minute."
+          summary: '🔴 Node DOWN: {{ $labels.nodename }}'
+          description: 'Node {{ $labels.nodename }} (instance: {{ $labels.instance }}, datacenter: {{ $labels.datacenter }}, env: {{ $labels.env }}, cloud: {{ $labels.cloud }}) has been unreachable for more than 1 minute.'
 
       - alert: NodeUnreachableShort
         expr: up{job="nodes"} == 0
@@ -51,5 +54,5 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "⚠️ Node unresponsive (30s): {{ $labels.nodename }}"
-          description: "Node {{ $labels.nodename }} (instance: {{ $labels.instance }}) has been unresponsive for 30 seconds."
+          summary: '⚠️ Node unresponsive (30s): {{ $labels.nodename }}'
+          description: 'Node {{ $labels.nodename }} (instance: {{ $labels.instance }}) has been unresponsive for 30 seconds.'

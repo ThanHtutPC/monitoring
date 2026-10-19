@@ -1,10 +1,28 @@
 services:
+  nx-health-checker:
+    image: nxera/nx-health-checker
+    container_name: nx-health-checker
+    ports:
+      - "3030:3030"
+    environment:
+      - RUST_LOG=info
+      - DATABASE_URL=sqlite:./data/health_check.db?mode=rwc
+      - HOST=0.0.0.0
+      - PORT=3030
+      - DEFAULT_USERNAME=innovix
+      - DEFAULT_PASSWORD=inv@dmin123
+      - PROMETHEUS_ENABLED=true
+    volumes:
+      - health_check_data:/app/data
+    restart: unless-stopped
+    networks:
+      - nx-network
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    restart: unless-stopped
     ports:
-      - "9004:9090"
+      - "9090:9090"
     volumes:
       # prometheus config 
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -17,57 +35,72 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
-      - '--web.enable-lifecycle'
-    networks: [monitoring]
+      - '--storage.tsdb.retention.time=24h'
+    depends_on:
+      - nx-health-checker
+    restart: unless-stopped
+    networks:
+      - nx-network
 
   grafana:
-    image: grafana/grafana:13.2.3
+    image: grafana/grafana:latest
     container_name: grafana
-    restart: unless-stopped
     ports:
-      - "9005:3000"
+      - "8000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: iadmin
-      GF_USERS_ALLOW_SIGN_UP: "false"
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=iadmin
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=mail.innovix-solutions.net:465
+      - GF_SMTP_USER=noreply@innovix-solutions.net
+      - GF_SMTP_PASSWORD=210485ddc1542748a2ab25b65c16bff8
+      - GF_SMTP_FROM_NAME=noreply.innovix-solutions.net
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-    depends_on: [prometheus]
-    networks: [monitoring]
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - nx-network
 
   alertmanager:
     image: prom/alertmanager:latest
-    container_name: alertmanager
+    container_name: alertmanager-for-monitoring
     restart: unless-stopped
     ports:
-      - "9003:9093"
+      - "9093:9093"
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-    networks: [monitoring]
+    networks: 
+      - nx-network
 
   calert:
     image: ghcr.io/mr-karan/calert:latest
-    container_name: calert
+    container_name: calert-monitoring
     restart: unless-stopped
     ports:
-      - "9002:6000" # Optional: only needed if you want to access it from the host
+      - "6000:6000" # Optional: only needed if you want to access it from the host
     volumes:
-      - ./config.toml:/app/config.toml:ro 
-      #- ./message.tmpl:/etc/calert/message.tmpl
+      - ./config.toml:/app/config.toml:ro
+        #- ./message.tmpl:/app/static/message.tmpl
     command: ["--config", "/app/config.toml"]
-    networks: [monitoring]
+    networks: 
+      - nx-network
 
 volumes:
+  health_check_data:
+    driver: local
   prometheus_data:
+    driver: local
   grafana_data:
+    driver: local
   alertmanager_data:
+    driver: local
 
 networks:
-  monitoring:
+  nx-network:
     driver: bridge
